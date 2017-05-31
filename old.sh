@@ -10,4 +10,4 @@ echo "Você não tem permissão para acessar este arquivo"
 exit 127
 fi
 
-exit 0
+exit 1
