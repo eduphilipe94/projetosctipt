@@ -1,0 +1,18 @@
+# #!/bin/bash
+db_file=db.txt
+
+if [ ! -e "$db_file" ] ; then
+    touch "$db_file"
+fi
+
+echo "Para continuar digite seu login:"
+read USER
+echo "Digite sua senha:"
+read -s PASSWORD
+
+encrypted_user=$(echo $USER -n | sha256sum | awk '{print $1}')
+encrypted_password=$(echo $PASSWORD -n | sha256sum  | awk '{print $1}')
+
+echo "$encrypted_user;$encrypted_password" >> $db_file
+
+echo "Usuario cadastrado com sucesso"

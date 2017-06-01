@@ -1,0 +1,22 @@
+# #!/bin/bash
+db_file=db.txt
+
+if [ ! -e "$db_file" ] ; then
+    touch "$db_file"
+fi
+
+echo "Para continuar digite seu login:"
+read USER
+echo "Digite sua senha:"
+read -s PASSWORD
+
+encrypted_user=$(echo $USER -n | sha256sum | awk '{print $1}')
+encrypted_password=$(echo $PASSWORD -n | sha256sum  | awk '{print $1}')
+
+IFS=";"
+while read f1 f2
+do
+  if [ "$encrypted_user" == "$f1" ]; then
+    echo "usuario encontrado. acesso autorizado."
+  fi
+done < $db_file
