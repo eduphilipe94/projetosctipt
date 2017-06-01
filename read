@@ -27,6 +27,11 @@ do
   if [ "$encrypted_user" == "$f1" ] && [ "$encrypted_password" == "$f2" ]; then
 
     # SE O USUÁRIO FOR ENCONTRADO COM A SENHA INFORMADA EXIBE A MENSAGEM
-    echo "usuario encontrado. acesso autorizado."
+    echo "Usuario encontrado. Acesso autorizado."
+
+    else
+
+    # SE O USUÁRIO NÃO FOR ENCONTRADO EXIBE MENSAGEM DE ERRO
+    echo "Usuario nao encontrado. Tente novamente."
   fi
 done < $db_file
