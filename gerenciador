@@ -66,6 +66,8 @@ Ler (){
 
 # USA O VIM PARA EdITAR O ARQUIVO PASSADO COMO PARAMETRO
 Editar (){
+  Autorizar
+  printf "Abrindo arquivo: $1\n"
   vim $1
   Desbloquar
 }
