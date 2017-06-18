@@ -1,0 +1,91 @@
+#!/bin/bash
+Registrar () {
+  sh add_user.sh
+  Desbloquar
+}
+
+Bloquear () {
+  # CRIA ARQUIVO DE LOCK QUE ENQUANTO EXISTIR BLOQUEIA O USO DO SCRIPT POR OUTRA PESSOA
+  touch database.lock
+}
+
+Desbloquar () {
+  # REMOVE O ARQUIVO DE LOCK E LIBERA O SCRIPT PARA INICIAR OUTRA EXECUÇÃO
+  rm database.lock
+}
+
+# VERIFICA SE O USUÁRIO ESTÁ CADASTRADO NO BANCO DE DADOS E CONFERE SUA SENHA
+# RETORNANDO O RESULTADO DESSA CONFIRMAÇÃO
+Autorizar () {
+  # DEFINE O ARQUIVO DO BANCO DE DADOS A SER CONSULTADO
+  db_file=db.txt
+
+  # CRIA O ARQUIVO SE ELE AINDA NÃO EXISTIR
+  if [ ! -e "$db_file" ] ; then
+      touch "$db_file"
+  fi
+
+  # SOLICITA LOGIN E SENHA DO USUÁRIO
+  echo "Para continuar digite seu login:"
+  read USER
+  echo "Digite sua senha:"
+  read -s PASSWORD
+
+  # CALCULA A VERSÃO CRIPTOGRAFADA DO LOGIN E DA SENHA
+  encrypted_user=$(echo $USER -n | sha256sum | awk '{print $1}')
+  encrypted_password=$(echo $PASSWORD -n | sha256sum  | awk '{print $1}')
+
+  # DEFINE O CARACTER DE SEPARAÇÃO ENTRE LOGIN E SENHA NO ARQUIVO DE BD
+  IFS=";"
+
+  # PERCORRE O ARQUIVO PROCURANDO PELO USUÁRIO E SENHA
+  while read f1 f2
+  do
+    if [ "$encrypted_user" == "$f1" ] && [ "$encrypted_password" == "$f2" ]; then
+
+      # SE O USUÁRIO FOR ENCONTRADO COM A SENHA INFORMADA EXIBE A MENSAGEM
+      echo "Usuario encontrado. Acesso autorizado."
+      else
+      # SE O USUÁRIO NÃO FOR ENCONTRADO EXIBE MENSAGEM DE ERRO
+      echo "Usuario nao encontrado. Tente novamente."
+      Desbloquar
+      exit 1
+    fi
+  done < $db_file
+}
+
+# EXIBE NA TELA O ARQUIVO PASSADO COMO ARGUMENTO
+Ler (){
+  Autorizar
+  printf "Lendo arquivo: $1\n"
+  printf "|-------INICIO---------|\n"
+  cat $1
+  printf "|--------FIM----------|\n"
+  Desbloquar
+}
+
+# USA O VIM PARA EdITAR O ARQUIVO PASSADO COMO PARAMETRO
+Editar (){
+  vim $1
+  Desbloquar
+}
+
+# DAR PERMISSÃO DE EXECUÇÃO AOS ARQUIVOS DE SCRIPT
+chmod +x add_user.sh
+
+# CONFERE SE TEM ALGUEM FAZENDO OPERAÇÕES NO ARQUIVO DE BANCO DE DADOS
+while test -f database.lock
+  do
+   printf "Banco de dados em uso. Aguarde... \nCaso o processo anterior tenha sido interrompido pode-se remover o arquivo database.lock\n"
+   sleep 5
+done
+
+Bloquear
+
+# VERIFICA O ARGUMENTO PASSADO PARA O SCRIPT QUE INDICA QUAL FUNÇÃO EXECUTAR
+case $1 in
+   registrar) Registrar ;;
+   ler) Ler $2 ;;
+   editar) Editar $2 ;;
+   *) echo "Opcao desconhecida." ;;
+esac
