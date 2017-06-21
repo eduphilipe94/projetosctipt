@@ -7,5 +7,5 @@ baixar os arquivos e dar permissao de execução ao arquivo gerenciador
 # Ler arquivo:
 * `./gerenciador ler /caminho/para/arquivo.txt`
 
-# Registrar usuário:
+# Editar usuário:
 * `./gerenciador editar /caminho/para/arquivo/txt`
